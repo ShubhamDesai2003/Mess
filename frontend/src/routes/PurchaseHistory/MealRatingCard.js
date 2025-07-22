@@ -6,12 +6,12 @@ import api from "../../index";
 export default function MealRatingCard({ day, mealType }) {
   const [rating, setRating] = useState(0);
 
-//   useEffect(() => {
-//     api
-//       .get(`/api/user/getRating`, { params: { day, mealType } })
-//       .then((res) => setRating(res.data.rating || 0))
-//       .catch(() => {});
-//   }, [day, mealType]);
+  useEffect(() => {
+    api
+      .get(`/api/user/getRating`, { params: { day, mealType } })
+      .then((res) => setRating(res.data.rating || 0))
+      .catch(() => {});
+  }, [day, mealType]);
 
   const handleRate = (value) => {
     setRating(value);

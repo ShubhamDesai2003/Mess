@@ -109,29 +109,41 @@ router.get("/getRating", async (req, res) => {
   }
 });
 
+const { Menu } = require("../models/Menu");
+
+
 router.post("/rateMeal", async (req, res) => {
   const { day, mealType, rating } = req.body;
-  console.log(req.body);
   const email = req.user.email;
+
+  console.log(req.body)
 
   if (!day || !mealType || typeof rating !== "number") {
     return res.status(400).json({ error: "day, mealType and numeric rating required" });
   }
 
   try {
-    const result = await Rating.findOneAndUpdate(
+    // Find the current menu for this day
+    const todayMenu = await Menu.findOne({ day });
+    if (!todayMenu || !todayMenu[mealType]) {
+      return res.status(404).json({ error: "Dish not found for this meal" });
+    }
+
+    const dishName = todayMenu[mealType]; // assumes field like: menu[mealType] = 'Paneer Butter Masala'
+
+    await Rating.findOneAndUpdate(
       { email, day, mealType },
-      { $set: { rating, createdAt: new Date() } },
+      { $set: { rating, dishName, createdAt: new Date() } },
       { upsert: true, new: true }
     );
-    console.log("Mongo result:", result);
+
     return res.json({ success: true });
   } catch (err) {
-    console.error("Mongo Save Error:", err);
+    console.error("RateMeal Error:", err);
     return res.status(500).json({ error: "Failed to save rating" });
   }
-  
 });
+
 
 module.exports = router;
 
