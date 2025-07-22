@@ -8,6 +8,9 @@ const Buyer = require("../models/Buyer");
 const Time = require("../models/Time");
 const Order = require("../models/Order");
 
+const Rating = require("../models/Rating");
+
+
 // Import RazorPay payment validator
 var {
   validatePaymentVerification,
@@ -89,4 +92,105 @@ router.post("/createOrder", async (req, res) => {
   }
 });
 
+router.get("/getRating", async (req, res) => {
+  const { day, mealType } = req.query;
+  const email = req.user.email;
+
+  if (!day || !mealType) {
+    return res.status(400).json({ error: "day and mealType are required" });
+  }
+
+  try {
+    const doc = await Rating.findOne({ email, day, mealType });
+    return res.json({ rating: doc ? doc.rating : 0 });
+  } catch (err) {
+    console.error("GetRating Error:", err);
+    return res.status(500).json({ error: "Failed to fetch rating" });
+  }
+});
+
+router.post("/rateMeal", async (req, res) => {
+  const { day, mealType, rating } = req.body;
+  console.log(req.body);
+  const email = req.user.email;
+
+  if (!day || !mealType || typeof rating !== "number") {
+    return res.status(400).json({ error: "day, mealType and numeric rating required" });
+  }
+
+  try {
+    const result = await Rating.findOneAndUpdate(
+      { email, day, mealType },
+      { $set: { rating, createdAt: new Date() } },
+      { upsert: true, new: true }
+    );
+    console.log("Mongo result:", result);
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("Mongo Save Error:", err);
+    return res.status(500).json({ error: "Failed to save rating" });
+  }
+  
+});
+
 module.exports = router;
+
+
+// // server/routes/user.js
+// const express = require("express");
+// const router = express.Router();
+// const Rating = require("../models/Rating");
+// // ... other imports (Buyer, Order, etc.)
+
+// // Existing routes here…
+
+// /**
+//  * @route   GET /api/user/getRating
+//  * @desc    Retrieve the current user’s rating for a specific day & meal
+//  * @access  Authenticated users
+//  */
+// router.get("/getRating", async (req, res) => {
+//   const { day, mealType } = req.query;
+//   const email = req.user.email;
+
+//   if (!day || !mealType) {
+//     return res.status(400).json({ error: "day and mealType are required" });
+//   }
+
+//   try {
+//     const doc = await Rating.findOne({ email, day, mealType });
+//     return res.json({ rating: doc ? doc.rating : 0 });
+//   } catch (err) {
+//     console.error("GetRating Error:", err);
+//     return res.status(500).json({ error: "Failed to fetch rating" });
+//   }
+// });
+
+// /**
+//  * @route   POST /api/user/rateMeal
+//  * @desc    Submit or update a meal rating (1–5 stars)
+//  * @access  Authenticated users
+//  */
+// router.post("/rateMeal", async (req, res) => {
+//   const { day, mealType, rating } = req.body;
+//   const email = req.user.email;
+
+//   if (!day || !mealType || typeof rating !== "number") {
+//     return res.status(400).json({ error: "day, mealType and numeric rating required" });
+//   }
+
+//   try {
+//     // upsert rating
+//     await Rating.findOneAndUpdate(
+//       { email, day, mealType },
+//       { $set: { rating, createdAt: new Date() } },
+//       { upsert: true, new: true }
+//     );
+//     return res.json({ success: true });
+//   } catch (err) {
+//     console.error("RateMeal Error:", err);
+//     return res.status(500).json({ error: "Failed to save rating" });
+//   }
+// });
+
+// module.exports = router;

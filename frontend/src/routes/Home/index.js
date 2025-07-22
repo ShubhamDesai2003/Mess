@@ -127,7 +127,7 @@ export default function HomePage() {
             <section className={classes.contact} id="contact">
                 <h2 className={classes.sectionTitle}>Contact Us</h2>
                 <p className={classes.contactText}>
-                    Have questions? Reach out to us at <a href="mailto:support@campusbite.com">support@campusbite.com</a> or call us at (123) 456-7890.
+                    Have questions? Reach out to us at <a href="mailto:support@campusbite.com">support@campusbite.com</a> or call us at (+91) 7620268492.
                 </p>
                 <div className={classes.contactInfo}>
                     <div className={classes.contactItem}>
