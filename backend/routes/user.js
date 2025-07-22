@@ -8,6 +8,9 @@ const Buyer = require("../models/Buyer");
 const Time = require("../models/Time");
 const Order = require("../models/Order");
 
+
+const Rating = require("../models/Rating");
+
 // Import RazorPay payment validator
 var {
   validatePaymentVerification,
@@ -89,4 +92,54 @@ router.post("/createOrder", async (req, res) => {
   }
 });
 
+
+router.get("/getRating", async (req, res) => {
+  const { day, mealType } = req.query;
+  const email = req.user.email;
+
+  if (!day || !mealType) {
+    return res.status(400).json({ error: "day and mealType are required" });
+  }
+
+  try {
+    const doc = await Rating.findOne({ email, day, mealType });
+    return res.json({ rating: doc ? doc.rating : 0 });
+  } catch (err) {
+    console.error("GetRating Error:", err);
+    return res.status(500).json({ error: "Failed to fetch rating" });
+  }
+});
+
+const { Menu } = require("../models/Menu");
+
+
+router.post("/rateMeal", async (req, res) => {
+  const { day, mealType, rating } = req.body;
+  const email = req.user.email;
+
+  if (!day || !mealType || typeof rating !== "number") {
+    return res.status(400).json({ error: "day, mealType and numeric rating required" });
+  }
+
+  try {
+    // Find the current menu for this day
+    const todayMenu = await Menu.findOne({ day });
+    if (!todayMenu || !todayMenu[mealType]) {
+      return res.status(404).json({ error: "Dish not found for this meal" });
+    }
+
+    const dishName = todayMenu[mealType]; // assumes field like: menu[mealType] = 'Paneer Butter Masala'
+
+    await Rating.findOneAndUpdate(
+      { email, day, mealType },
+      { $set: { rating, dishName, createdAt: new Date() } },
+      { upsert: true, new: true }
+    );
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("RateMeal Error:", err);
+    return res.status(500).json({ error: "Failed to save rating" });
+  }
+});
 module.exports = router;
