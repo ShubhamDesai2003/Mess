@@ -425,7 +425,9 @@ export default function BuyPage() {
                 // Process the menu data and handle "Saturdayday" typo
                 const processedMenuData = menuRes.data.map(day => {
                     // Fix for "Saturdayday" typo
-                    const dayName = day.day === "Saturday" ? "saturday" : day.day.toLowerCase();
+                    // const dayName = day.day === "Saturday" ? "saturday" : day.day.toLowerCase();
+                    const dayName = (day.day || "").toLowerCase();
+
 
                     return {
                         ...day,

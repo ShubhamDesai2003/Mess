@@ -9,6 +9,7 @@ const Time = require("../models/Time");
 const Order = require("../models/Order");
 
 const Rating = require("../models/Rating");
+const { Menu } = require("../models/Menu");
 
 
 // Import RazorPay payment validator
@@ -101,41 +102,54 @@ router.get("/getRating", async (req, res) => {
   }
 
   try {
-    const doc = await Rating.findOne({ email, day, mealType });
-    return res.json({ rating: doc ? doc.rating : 0 });
+    const doc = await Rating.findOne({ email, day });
+    if (!doc) {
+      return res.json({ rating: 0 });
+    }
+
+    const meal = doc.meals.find(m => m.mealType === mealType);
+    return res.json({ rating: meal ? meal.rating : 0 });
   } catch (err) {
     console.error("GetRating Error:", err);
     return res.status(500).json({ error: "Failed to fetch rating" });
   }
 });
 
-const { Menu } = require("../models/Menu");
+
 
 
 router.post("/rateMeal", async (req, res) => {
   const { day, mealType, rating } = req.body;
   const email = req.user.email;
 
-  console.log(req.body)
-
-  if (!day || !mealType || typeof rating !== "number") {
-    return res.status(400).json({ error: "day, mealType and numeric rating required" });
-  }
-
-  try {
-    // Find the current menu for this day
-    const todayMenu = await Menu.findOne({ day });
+    try {
+    // Get dish name
+    const todayMenu = await Menu.findOne({
+      day: { $regex: new RegExp(`^${day}$`, "i") }
+    });
     if (!todayMenu || !todayMenu[mealType]) {
       return res.status(404).json({ error: "Dish not found for this meal" });
     }
 
-    const dishName = todayMenu[mealType]; // assumes field like: menu[mealType] = 'Paneer Butter Masala'
+    const dishName = todayMenu[mealType];
 
-    await Rating.findOneAndUpdate(
-      { email, day, mealType },
-      { $set: { rating, dishName, createdAt: new Date() } },
-      { upsert: true, new: true }
+    // Upsert day entry and update or push meal inside meals[]
+    const updated = await Rating.findOneAndUpdate(
+      { email, day },
+      {
+        $pull: { meals: { mealType } } // Remove old entry if exists
+      },
+      { new: true, upsert: true }
     );
+
+    updated.meals.push({
+      mealType,
+      rating,
+      dishName,
+      createdAt: new Date()
+    });
+
+    await updated.save();
 
     return res.json({ success: true });
   } catch (err) {
@@ -143,6 +157,7 @@ router.post("/rateMeal", async (req, res) => {
     return res.status(500).json({ error: "Failed to save rating" });
   }
 });
+
 
 
 module.exports = router;
