@@ -107,7 +107,7 @@ Purpose: Suggest meals to users based on past selections and ingredient preferen
 
 👥 Authors
 
-- Shubham Desai – Full Stack Developer
+- Shubham Desai 
 - Vishakha Desale
 - Kalyani Phad 
 
