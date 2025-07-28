@@ -120,6 +120,7 @@ export default function App() {
                         <Route path="/total-meals" element={
                             <ProtectedRoute>
                                 <TotalMealsPage />
+                                <IngredientForecastPage />
                             </ProtectedRoute>
                         } />
                         <Route path="/scan-qr" element={

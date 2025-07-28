@@ -136,13 +136,9 @@ app.use('/api/user/*', (req, res, next) => {
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/data', require('./routes/data'));
+app.use('/api/admin/forecast', require('./routes/forecast'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/user', require('./routes/user'));
-
-app.use("/ai", require("./routes/forecast"));
-
-
-
 
 
 

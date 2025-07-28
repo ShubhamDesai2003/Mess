@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Card, Spin, Alert } from "antd";
 import axios from "axios";
+import api from "../..";
 
 export default function IngredientForecastPage() {
   const [data, setData] = useState([]);
@@ -9,7 +10,9 @@ export default function IngredientForecastPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get("/api/admin/forecast/ingredients")
+    console.log("Ingredients");
+    
+    api.get("api/admin/forecast/ingredients")
       .then(res => {
         // transform the object into an array for Table
         const arr = Object.entries(res.data).map(([name, { unit, estimated_quantity }]) => ({
