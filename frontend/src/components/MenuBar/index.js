@@ -96,9 +96,7 @@ export default function MenuBar() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log("requesting status");
                 const response = await api.get('api/data/status');
-                console.log(response);
                 setStatus(response.data);
             } catch (error) {
                 message.error('Failed to fetch data from server');

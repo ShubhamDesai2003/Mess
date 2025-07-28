@@ -7,8 +7,6 @@ const router = express.Router();
 router.get(
     "/signin",
     (req, res, next) => {
-        console.log("Google sign-in route was called"); 
-        console.log(req, res); 
          // Debugging log
         next();  // Proceed with authentication
     },
@@ -24,8 +22,6 @@ router.get(
 router.get(
     "/signout",
     (req, res, next) => {
-        console.log("Google sign-out route was called");  // Debugging log
-        
         // Call req.logout and provide a callback function to handle errors
         req.logout(function (err) {
             if (err) {

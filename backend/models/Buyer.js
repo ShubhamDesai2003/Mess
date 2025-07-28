@@ -1,236 +1,125 @@
 const mongoose = require("mongoose");
 
-const BuyerSchema = mongoose.model("buyer", new mongoose.Schema({
-    email: String,
-    secret: String,
-    bought: Boolean,
-    this: {
-        monday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        tuesday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        wednesday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        thursday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        friday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        saturday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        sunday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        }
-    },
-    next: {
-        monday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        tuesday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        wednesday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        thursday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        friday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        saturday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        },
-        sunday: {
-            breakfast: { type: Boolean, default: false },
-            lunch: { type: Boolean, default: false },
-            dinner: { type: Boolean, default: false }
-        }
-    }
-}));
+const BuyerSchema = new mongoose.Schema({
+  email: String,
+  secret: String,
+  bought: Boolean,
+  this: createWeekSchema(),
+  next: createWeekSchema()
+});
 
-// Get the user details, or if it doesn't exists, create a new user object
+function createWeekSchema() {
+  const mealSchema = {
+    breakfast: { type: Boolean, default: false },
+    lunch: { type: Boolean, default: false },
+    dinner: { type: Boolean, default: false }
+  };
+
+  return {
+    monday: mealSchema,
+    tuesday: mealSchema,
+    wednesday: mealSchema,
+    thursday: mealSchema,
+    friday: mealSchema,
+    saturday: mealSchema,
+    sunday: mealSchema
+  };
+}
+
+const Buyer = mongoose.model("buyer", BuyerSchema);
+
+// --- GET or CREATE a buyer ---
 module.exports.getBuyer = async function (email) {
-    let charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-    let randomStr = "";
-    for (let i = 0; i < 4; i++)
-        randomStr += charset[Math.floor(Math.random() * charset.length)];
+  const randomStr = generateRandomSecret();
+  const buyerDoc = await Buyer.findOneAndUpdate(
+    { email },
+    {
+      $setOnInsert: {
+        bought: false,
+        secret: randomStr,
+        this: createEmptyWeek(),
+        next: createEmptyWeek()
+      }
+    },
+    { new: true, upsert: true }
+  ).select({ _id: 0 });
 
-    const Buyer = await BuyerSchema.findOneAndUpdate(
-        { email: email },
-        {
-            $setOnInsert: {
-                bought: false,
-                secret: randomStr,
-                this: {
-                    monday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    tuesday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    wednesday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    thursday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    friday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    saturday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    sunday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    }
-                },
-                next: {
-                    monday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    tuesday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    wednesday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    thursday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    friday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    saturday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    },
-                    sunday: {
-                        breakfast: false,
-                        lunch: false,
-                        dinner: false
-                    }
-                }
-            }
-        },
-        { new: true, upsert: true }
-    ).select({ _id: 0 });
-    return Buyer;
-}
+  return buyerDoc;
+};
 
-// Resets the user secret and returns the updated user object
+// --- Reset buyer secret ---
 module.exports.resetSecret = async function (email) {
-    let charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-    let randomStr = "";
-    for (let i = 0; i < 4; i++)
-        randomStr += charset[Math.floor(Math.random() * charset.length)];
+  const newSecret = generateRandomSecret();
+  const updatedBuyer = await Buyer.findOneAndUpdate(
+    { email },
+    { secret: newSecret },
+    { new: true }
+  ).select({ _id: 0 });
 
-    const Buyer = await BuyerSchema.findOneAndUpdate(
-        { email: email },
-        { secret: randomStr }).select({ _id: 0 });
-    return Buyer;
-}
+  return updatedBuyer;
+};
 
-// Check if the user's coupon is valid for the current day and meal
+// --- Check if coupon is valid ---
 module.exports.checkCoupon = async function (data) {
-    console.log("Coupon is here!!", data.email);
-    const Buyer = await BuyerSchema.findOne({ email: data.email, secret: data.secret });
-    console.log("Coupon is here Buyer!!", Buyer);
-    console.log("Coupon is here Buyer!! this:", Buyer.this[data.day]);
+  const buyer = await Buyer.findOne({ email: data.email, secret: data.secret });
+  if (!buyer) return false;
 
-    if (Buyer == null) return false;
-    if (Buyer.this[data.day][data.type]) {
-        await BuyerSchema.updateOne({ email: data.email }, { ["this." + data.day + "." + data.type]: false });
-        console.log("true")
-        return true;
-    }
-    console.log("false")
-    return false;
-}
-
-
-// Save the purchased coupons after a successful payment
-module.exports.saveOrder = async function (email, selectedMeals) {
-    console.log("SelectedMeals:", selectedMeals)
-    await BuyerSchema.updateOne(
-        { email: email },
-        { 
-            $set: { 
-                "this": selectedMeals,
-                bought: true 
-            }
-        },
-        { upsert: true }
+  if (buyer.this[data.day]?.[data.type]) {
+    await Buyer.updateOne(
+      { email: data.email },
+      { $set: { [`this.${data.day}.${data.type}`]: false } }
     );
-}
+    return true;
+  }
+  return false;
+};
 
-// Check if the user has already bought the coupons for the coming week
+// --- Save purchase selection ---
+module.exports.saveOrder = async function (email, selectedMeals) {
+  await Buyer.updateOne(
+    { email },
+    {
+      $set: {
+        this: selectedMeals,
+        bought: true
+      }
+    },
+    { upsert: true }
+  );
+};
+
+// --- Check if buyer bought for next week ---
 module.exports.boughtNextWeek = async function (email) {
-    await module.exports.getBuyer(email);
+  await module.exports.getBuyer(email);
+  const buyer = await Buyer.findOne({ email });
+  return buyer?.bought || false;
+};
 
-    const Buyer = await BuyerSchema.findOne({ email: email });
+// --- Get all buyers ---
+module.exports.allBuyers = async function () {
+  const all = await Buyer.find({});
+  return all;
+};
 
-    return Buyer.bought;
+// --- Export the model ---
+module.exports.Buyer = Buyer;
+
+// --- Helper functions ---
+function generateRandomSecret() {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+  let str = "";
+  for (let i = 0; i < 4; i++) str += charset[Math.floor(Math.random() * charset.length)];
+  return str;
 }
 
-// Returns details of all the users
-module.exports.allBuyers = async function () {
-    const Buyers = await BuyerSchema.find({});
-    return Buyers;
+function createEmptyWeek() {
+  return {
+    monday: { breakfast: false, lunch: false, dinner: false },
+    tuesday: { breakfast: false, lunch: false, dinner: false },
+    wednesday: { breakfast: false, lunch: false, dinner: false },
+    thursday: { breakfast: false, lunch: false, dinner: false },
+    friday: { breakfast: false, lunch: false, dinner: false },
+    saturday: { breakfast: false, lunch: false, dinner: false },
+    sunday: { breakfast: false, lunch: false, dinner: false }
+  };
 }

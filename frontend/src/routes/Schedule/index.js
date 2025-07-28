@@ -64,8 +64,6 @@ export default function SchedulePage() {
                     api.get('api/data/menu')
                 ]);
                 
-                console.log("time:", timeResponse);
-                console.log("menu:", menuResponse);
                 
                 // Format timing data for better display
                 const formattedTimingData = timeResponse.data.map(item => ({

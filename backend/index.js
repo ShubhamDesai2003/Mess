@@ -9,7 +9,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
 // Initialize express app
-var app = express();
+let app = express();
 
 // Load env and set PORT
 dotenv.config({ path: './config/config.env' });
@@ -28,6 +28,16 @@ mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 30000 }); //
 
 // Passport config
 require('./config/passport')(passport);
+
+
+
+
+
+
+
+
+
+
 
 
 app.use(cors({
@@ -89,26 +99,30 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-
-// Debugging middleware
-// app.use((req, res, next) => {
-//     console.log('Session ID:', req.sessionID);
-//     console.log('Authenticated:', req.isAuthenticated());
-//     console.log('User:', req.user);
-//     next();
-// });
-
-
-
 //Requests
 app.use((req, res, next) => {
     console.log(`Received request for ${req.url}`);
     next();
 });
 
+
+
+
+
+
+
+const cron = require("node-cron");
+const aggregateSelections = require("./scripts/aggregateSelections");
+
+cron.schedule("0 0 * * 0", async () => {
+  console.log("⏳ Running weekly aggregation...");
+  await aggregateSelections();
+});
+
+aggregateSelections();
+
 // Check authentication for admin endpoints
 app.use('/api/admin/*', (req, res, next) => {
-    console.log("here",req);
     if (req.isAuthenticated() && req.user?.email === process.env.ADMIN) next();
     else res.sendStatus(401);
 });
@@ -124,6 +138,11 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/data', require('./routes/data'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/user', require('./routes/user'));
+
+app.use("/ai", require("./routes/forecast"));
+
+
+
 
 
 

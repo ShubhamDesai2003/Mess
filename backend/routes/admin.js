@@ -7,6 +7,26 @@ const Menu = require('../models/Menu');
 const Time = require('../models/Time');
 const Buyer = require('../models/Buyer');
 
+const aggregateSelections = require("../scripts/aggregateSelections");
+
+const forecastClient = require("../utils/forecastClient");
+
+router.get("/forecast/weekly", async (req, res) => {
+  const weeks = req.query.weeks || 1;
+  const { data } = await forecastClient.get("/forecast/weekly", { params: { weeks } });
+  res.json(data);
+});
+
+router.post("/aggregate-weekly", async (req, res) => {
+  try {
+    await aggregateSelections();
+    res.json({ success: true, message: "Weekly data saved" });
+  } catch (err) {
+    console.error("Aggregation error:", err);
+    res.status(500).json({ error: "Failed to aggregate" });
+  }
+});
+
 // Set the time and cost of breakfast, lunch, dinner
 router.post(
     "/setTime",

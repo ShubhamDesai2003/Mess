@@ -28,7 +28,6 @@ router.get(
 router.get(
     "/status",
     async (req, res) => {
-        console.log("status done");
         console.log({loggedIn: req.isAuthenticated()});
         res.send({ loggedIn: req.isAuthenticated(), admin: (req.isAuthenticated() && req.user?.email === process.env.ADMIN) });
     }

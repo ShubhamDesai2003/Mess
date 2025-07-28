@@ -18,6 +18,7 @@ import BuyPage from './routes/Buy';
 import AdminPanel from './routes/AdminPanel';
 import TotalMealsPage from './routes/TotalMeals';
 import ScanQRPage from './routes/ScanQR';
+import IngredientForecastPage from './routes/AI/IngredientForecastPage';
 
 
 
@@ -41,12 +42,12 @@ export default function App() {
             try {
                 const response = await api.get('api/data/status');
                 const newAuthStatus = response.data?.loggedIn || false;
-                
+
                 // If this is a change from not authenticated to authenticated
                 if (!isAuthenticated && newAuthStatus) {
                     setJustLoggedIn(true);
                 }
-                
+
                 setIsAuthenticated(newAuthStatus);
             } catch (error) {
                 setIsAuthenticated(false);
@@ -54,18 +55,17 @@ export default function App() {
                 setLoading(false);
             }
         };
-        
+
         checkAuth();
     }, [isAuthenticated]);
 
     // Handle redirect after login
     useEffect(() => {
-        console.log("Herre"+window.location.href);
         if (justLoggedIn && isAuthenticated) {
-            if(!(window.location.href === "http://localhost:3000/upi-payment")){ 
+            if (!(window.location.href === "http://localhost:3000/upi-payment")) {
                 navigate('/schedule');
             }
-              
+
             setJustLoggedIn(false); // Reset the flag after redirect
         }
     }, [justLoggedIn, isAuthenticated, navigate]);
@@ -88,7 +88,7 @@ export default function App() {
                         {/* Public routes */}
                         <Route path="/" element={<HomePage />} />
                         <Route path="/schedule" element={<SchedulePage />} />
-                        
+
                         {/* Protected routes */}
                         <Route path="/qr-code" element={
                             <ProtectedRoute>
@@ -110,7 +110,7 @@ export default function App() {
                                 <UPIPayment />
                             </ProtectedRoute>
                         } />
-                                              
+
                         {/* Admin routes (these could have additional admin-specific protection) */}
                         <Route path="/admin" element={
                             <ProtectedRoute>
@@ -127,6 +127,14 @@ export default function App() {
                                 <ScanQRPage />
                             </ProtectedRoute>
                         } />
+
+                        <Route path="/forecast/ingredients" element={
+                            <ProtectedRoute>
+                                <IngredientForecastPage />
+                            </ProtectedRoute>
+                        } />
+
+
                     </Route>
                 </Routes>
             </Layout>
