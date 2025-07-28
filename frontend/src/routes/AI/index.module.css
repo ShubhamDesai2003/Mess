@@ -1,0 +1,144 @@
+.pageContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+.simpleTitleHeader {
+    font-size: 28px;
+    margin: 0 0 24px 0;
+    text-align: center;
+    color: #262626;
+}
+
+.tabs {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.menuCard {
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.cardTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.weekTitle {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.loadingContainer {
+    padding: 40px 0;
+    text-align: center;
+}
+
+.lastUpdated {
+    text-align: right;
+    color: #8c8c8c;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pageContainer {
+        padding: 16px 8px;
+    }
+
+    .simpleTitleHeader {
+        font-size: 24px;
+    }
+
+    .cardTitle {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+
+/* Container Styles */
+.pageContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    box-sizing: border-box;
+}
+
+/* Header Styles */
+.simpleTitleHeader {
+    font-size: 28px;
+    margin: 0 0 24px 0;
+    text-align: center;
+    color: #262626;
+    font-weight: 600;
+}
+
+/* Tab Styles */
+.tabs {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 16px;
+}
+
+/* Menu Card Styles */
+.menuCard {
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+/* Card Title Styles */
+.cardTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+/* Week Title Styles */
+.weekTitle {
+    font-size: 16px;
+    font-weight: 500;
+    color: #595959;
+}
+
+/* Loading Container Styles */
+.loadingContainer {
+    padding: 40px 0;
+    text-align: center;
+    font-size: 18px;
+    color: #8c8c8c;
+}
+
+/* Last Updated Styles */
+.lastUpdated {
+    text-align: right;
+    color: #8c8c8c;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .pageContainer {
+        padding: 16px 8px;
+    }
+
+    .simpleTitleHeader {
+        font-size: 24px;
+    }
+
+    .cardTitle {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

@@ -1,48 +1,67 @@
-// scripts/aggregateSelections.js
-const { Buyer } = require("../models/Buyer");
-const WeeklySelection = require("../models/WeeklySelection");
+// scripts/aggregateDaily.js
+const mongoose = require("mongoose");
+// const Buyer = require("../models/Buyer");
+const { Buyer } = require("../models/Buyer");  // ✅ destructure from module.exports
 
-// async function runAggregation() {
-//   const buyers = await Buyer.find({});
-//   console.log("Found buyers:", buyers.length);
-//   // ... rest of your aggregation logic ...
-// }
+const Daily = require("../models/DailySelection");
 
-// runAggregation();
 
-module.exports = async function aggregateSelections() {
-  const counts = {
-    monday:    { breakfast: 0, lunch: 0, dinner: 0 },
-    tuesday:   { breakfast: 0, lunch: 0, dinner: 0 },
-    wednesday: { breakfast: 0, lunch: 0, dinner: 0 },
-    thursday:  { breakfast: 0, lunch: 0, dinner: 0 },
-    friday:    { breakfast: 0, lunch: 0, dinner: 0 },
-    saturday:  { breakfast: 0, lunch: 0, dinner: 0 },
-    sunday:    { breakfast: 0, lunch: 0, dinner: 0 },
-  };
+const dayMap = {
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+  sunday: 0,
+};
 
+function computeDateForDayName(dayName) {
+  const today = new Date();
+  const currentDay = today.getDay();
+  const targetDay = dayMap[dayName.toLowerCase()];
+  const delta = (targetDay - currentDay + 7) % 7;
+  const date = new Date(today);
+  date.setDate(today.getDate() + delta);
+  return date;
+}
+
+
+async function aggregateSelections() {
   const buyers = await Buyer.find({});
+  const dailyCounts = {};  // { '2025-07-20': { breakfast: 0, lunch: 0, dinner: 0 }, ... }
 
-  for (const buyer of buyers) {
-    const weekData = buyer.this; // Or 'next' for future-based forecasting
+  buyers.forEach(b => {
+    Object.entries(b.this).forEach(([dayName, meals]) => {
+      // compute actual date from 'this' structure if you store weekStart elsewhere,
+      // or assume 'this' always refers to the current week and map dayName -> real date
+      const date = computeDateForDayName(dayName); // you’ll need a helper
+      const key = date.toISOString().slice(0,10);
+      dailyCounts[key] = dailyCounts[key] || { breakfast:0, lunch:0, dinner:0 };
 
-    for (const day in counts) {
-      if (!weekData[day]) continue;
-
-      ["breakfast", "lunch", "dinner"].forEach(meal => {
-        if (weekData[day][meal]) {
-          counts[day][meal]++;
-        }
+      ["breakfast","lunch","dinner"].forEach(m => {
+        if (meals[m]) dailyCounts[key][m]++;
       });
-    }
+    });
+  });
+
+  // Upsert into DB
+  for (const [dateStr, counts] of Object.entries(dailyCounts)) {
+    await Daily.findOneAndUpdate(
+      { date: new Date(dateStr) },
+      { $set: counts },
+      { upsert: true }
+    );
   }
 
-  const now = new Date();
-  const weekStart = new Date(now.setDate(now.getDate() - now.getDay())); // Sunday start
+  console.log("✅ Daily aggregates saved");
+}
 
-  const doc = new WeeklySelection({ weekStart, data: counts });
-  await doc.save();
-  console.log("✅ Weekly data saved to WeeklySelection");
-  // console.log(doc);
-  
-};
+
+module.exports = aggregateSelections; // ✅ EXPORT IT
+
+// Only call if running directly from CLI
+if (require.main === module) {
+  aggregateSelections();
+}
+

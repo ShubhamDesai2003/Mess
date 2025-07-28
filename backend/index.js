@@ -30,16 +30,6 @@ mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 30000 }); //
 require('./config/passport')(passport);
 
 
-
-
-
-
-
-
-
-
-
-
 app.use(cors({
     origin: process.env.FRONTEND || 'http://localhost:3000',
     credentials: true,

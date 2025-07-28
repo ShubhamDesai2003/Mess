@@ -3,12 +3,12 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 
-
 load_dotenv(dotenv_path='../../backend/config/config.env')
 MONGO_URI = os.getenv('MONGO_URI')
-
 client = MongoClient(MONGO_URI)
 db = client.get_database("Mess")
+
+from forecast import get_weekly_forecast as fetch_weekly_forecast
 
 def get_menu():
     return list(db.menuitems.find({}))
@@ -16,23 +16,16 @@ def get_menu():
 def get_ingredients():
     return list(db.ingredients.find({}))
 
-def get_weekly_forecast():
-    from forecast import get_weekly_forecast
-    return get_weekly_forecast(weeks_ahead=4)  # 4 weeks = 1 month
-
-def get_day_from_date(date_str):
-    import datetime
-    return datetime.date.fromisoformat(date_str).strftime("%A").lower()
+def get_forecast_data():
+    return fetch_weekly_forecast()  # no args
 
 def forecast_ingredient_requirements():
     menu = get_menu()
     ingredients = get_ingredients()
-    forecast = get_weekly_forecast()
+    forecast = get_forecast_data()
 
     dish_counts = {}
-
-    for date, counts in forecast.items():
-        weekday = get_day_from_date(date)
+    for weekday, counts in forecast.items():
         menu_for_day = next((m for m in menu if m["day"].lower() == weekday), None)
         if not menu_for_day:
             continue
@@ -50,15 +43,17 @@ def forecast_ingredient_requirements():
     ingredient_usage = {}
     for ing in ingredients:
         related_dishes = [d.lower() for d in ing.get('dishes', [])]
-
         if 'all dishes' in related_dishes or 'most dishes' in related_dishes:
             estimated_total = sum(dish_counts.values())
         else:
-            estimated_total = sum(dish_counts.get(dish, 0) for dish in dish_counts if dish.lower() in related_dishes)
-
+            estimated_total = sum(
+                dish_counts.get(dish, 0)
+                for dish in dish_counts
+                if dish.lower() in related_dishes
+            )
         ingredient_usage[ing["name"]] = {
             "unit": ing.get("unit", ""),
-            "estimated_quantity": estimated_total  # currently based on count, not per-dish multipliers
+            "estimated_quantity": estimated_total
         }
 
     return ingredient_usage
@@ -70,13 +65,8 @@ def save_to_db(forecast_data):
     })
 
 if __name__ == "__main__":
-    from datetime import datetime, timezone
-
     usage = forecast_ingredient_requirements()
-
-    print("📅 Forecast result saved.\n🛒 Ingredient Forecast for Next Month:\n")
+    print("📅 Forecast result saved.\n🛒 Ingredient Forecast for Next Week:\n")
     for name, data in usage.items():
         print(f"{name}: {data['estimated_quantity']} {data['unit']}")
-
-    # Save the result
     save_to_db(usage)

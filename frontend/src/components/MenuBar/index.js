@@ -171,7 +171,7 @@ export default function MenuBar() {
     const adminMenuItems = status?.admin ? [
         { icon: <SettingOutlined />, label: 'Admin Panel', link: '/admin', key: 'v-admin' },
         { icon: <SolutionOutlined />, label: 'Total Meals', link: '/total-meals', key: 'v-meals' },
-        { icon: <SolutionOutlined />, label: 'AI', link: 'forecast/ingredients', key: 'v-ai' },
+        { icon: <SolutionOutlined />, label: 'Forecasting', link: 'forecast/', key: 'v-ai' },
         { icon: <ScanOutlined />, label: 'Scan QR', link: '/scan-qr', key: 'v-scan' },
     ] : [];
     
