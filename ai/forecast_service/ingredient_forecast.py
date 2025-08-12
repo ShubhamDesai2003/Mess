@@ -40,20 +40,41 @@ def forecast_ingredient_requirements():
                 if dish:
                     dish_counts[dish] = dish_counts.get(dish, 0) + people
 
+    # ingredient_usage = {}
+    # for ing in ingredients:
+    #     related_dishes = [d.lower() for d in ing.get('dishes', [])]
+    #     if 'all dishes' in related_dishes or 'most dishes' in related_dishes:
+    #         estimated_total = sum(dish_counts.values())
+    #     else:
+    #         estimated_total = sum(
+    #             dish_counts.get(dish, 0)
+    #             for dish in dish_counts
+    #             if dish.lower() in related_dishes
+    #         )
+    #     ingredient_usage[ing["name"]] = {
+    #         "unit": ing.get("unit", ""),
+    #         "estimated_quantity": estimated_total
+    #     }
+
+    # return ingredient_usage
+
     ingredient_usage = {}
     for ing in ingredients:
+        per_person_qty = ing.get("perPerson", 1)  # default 1 if not provided
         related_dishes = [d.lower() for d in ing.get('dishes', [])]
+        
         if 'all dishes' in related_dishes or 'most dishes' in related_dishes:
-            estimated_total = sum(dish_counts.values())
+            estimated_total = sum(dish_counts.values()) * per_person_qty
         else:
             estimated_total = sum(
                 dish_counts.get(dish, 0)
                 for dish in dish_counts
                 if dish.lower() in related_dishes
-            )
+            ) * per_person_qty
+        
         ingredient_usage[ing["name"]] = {
             "unit": ing.get("unit", ""),
-            "estimated_quantity": estimated_total
+            "estimated_quantity": int(round(estimated_total))
         }
 
     return ingredient_usage
