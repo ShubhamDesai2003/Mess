@@ -26,6 +26,7 @@ import IngredientForecastPage from './routes/AI/IngredientForecastPage';
 import api from '.';
 import UPIPayment from './components/UPI';
 import WeeklyForecastPage from './routes/AI/WeeklyForecastPage';
+import RecommendationsPage from './routes/AI/RecommendationsPage';
 
 export default function App() {
     // Removes the loader after the site has been fully loaded
@@ -121,8 +122,7 @@ export default function App() {
                         <Route path="/total-meals" element={
                             <ProtectedRoute>
                                 <TotalMealsPage />
-                                <IngredientForecastPage />
-                                <WeeklyForecastPage />
+
                             </ProtectedRoute>
                         } />
                         <Route path="/scan-qr" element={
@@ -135,6 +135,7 @@ export default function App() {
                             <ProtectedRoute>
                                 <IngredientForecastPage />
                                 <WeeklyForecastPage />
+                                <RecommendationsPage />
                             </ProtectedRoute>
                         } />
 

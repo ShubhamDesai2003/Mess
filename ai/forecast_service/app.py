@@ -18,13 +18,22 @@ def forecast_ingredients():
     return jsonify(usage)
 
 
+# @app.route('/forecast/recommendations')
+# def forecast_recommendations():
+#     email = request.args.get("email")
+#     print(email)
+#     weeks = request.args.get("weeks")  # optional lookback
+#     recs = get_recommendations(user_email=email, lookback_weeks=weeks)
+#     return jsonify(recs)
+
 @app.route('/forecast/recommendations')
 def forecast_recommendations():
-    email = request.args.get("email")
-    print(email)
-    weeks = request.args.get("weeks")  # optional lookback
+    email = request.args.get("email")   # will now receive the actual string
+    print("Email from request:", email)
+    weeks = request.args.get("weeks")
     recs = get_recommendations(user_email=email, lookback_weeks=weeks)
     return jsonify(recs)
+
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

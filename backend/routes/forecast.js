@@ -39,15 +39,14 @@ router.get("/ingredients", async (req, res) => {
 // backend/routes/admin/forecast.js  (or wherever you keep admin api)
 router.get("/recommendations", async (req, res) => {
   try {
-    const { email } = req.query;
-    const { data } = await forecastClient.get(`/forecast/recommendations`, { params: { email }});
+    console.log("recommendations Email" + req.user.email)
+    const email = req.user.email;
+    const { data } = await forecastClient.get(`/forecast/recommendations`, { params: { email } });
     res.json(data);
   } catch (err) {
     console.error("Error fetching recommendations:", err.message);
     res.status(500).json({ error: "Failed to fetch recommendations" });
   }
 });
-
-
 
 module.exports = router;

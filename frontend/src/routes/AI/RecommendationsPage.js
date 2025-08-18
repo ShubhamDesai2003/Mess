@@ -1,23 +1,40 @@
 // src/routes/RecommendationsPage.js
-import React, {useEffect, useState} from 'react';
-import { Card, List, Spin, Alert, Input, Button, Space } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, List, Spin, Row, Col, Typography } from 'antd';
 import api from '../..';
+import classes from "./index.module.css"; // ✅ Reuse same styles as IngredientForecastPage
+
+const { Title } = Typography;
 
 export default function RecommendationsPage() {
-  const [email, setEmail] = useState('');
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const fetchRec = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get('api/admin/forecast/recommendations', { params: { email }});
-      setData(res.data);
-    } catch (e) {
-      setData(null);
-      console.error(e);
-    } finally { setLoading(false); }
-  };
+  useEffect(() => {
+    const fetchRec = async () => {
+      try {
+        const res = await api.get('/api/admin/forecast/recommendations');
+        setData(res.data);
+      } catch (e) {
+        console.error("❌ Failed to fetch recommendations", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRec();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className={classes.loadingContainer}>
+        <Spin size="large" tip="Loading recommendations..." />
+      </div>
+    );
+  }
+
+  if (!data) {
+    return <div style={{ textAlign: 'center', marginTop: 40 }}>No recommendations available</div>;
+  }
 
   return (
     <div className={classes.pageContainer}>
@@ -32,12 +49,15 @@ export default function RecommendationsPage() {
             </div>
             <List
               dataSource={(data.popular || []).slice(0, 3)}
-              renderItem={item => (
+              renderItem={(item, index) => (
                 <List.Item>
-                  {item.dish} — <b>{item.count}</b>
+                  <b>{index + 1}.</b> {item.dish}
+                  ( <b>{item.count}</b> )
+
                 </List.Item>
               )}
             />
+
           </Card>
         </Col>
 
@@ -49,12 +69,14 @@ export default function RecommendationsPage() {
             </div>
             <List
               dataSource={(data.user || []).slice(0, 3)}
-              renderItem={item => (
+              renderItem={(item, index) => (
                 <List.Item>
-                  {item.dish} — <b>{item.count}</b>
+                  <b>{index + 1}.</b> {item.dish}
+                  ( <b>{item.count}</b> )
                 </List.Item>
               )}
             />
+
           </Card>
         </Col>
       </Row>
