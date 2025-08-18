@@ -23,27 +23,51 @@ def build_df_for(day, meal_type):
             pass
     return pd.DataFrame(data)
 
-def train_prophet(df):
-    model = Prophet(weekly_seasonality=True, daily_seasonality=False)
-    model.fit(df)
-    future = model.make_future_dataframe(periods=1, freq='W')  # 1 week ahead
-    forecast = model.predict(future)
-    return forecast.tail(1)[["ds", "yhat"]].iloc[0]["yhat"]
+# def train_prophet(df):
+#     model = Prophet(weekly_seasonality=True, daily_seasonality=False)
+#     model.fit(df)
+#     future = model.make_future_dataframe(periods=1, freq='W')  # 1 week ahead
+#     forecast = model.predict(future)
+#     return forecast.tail(1)[["ds", "yhat"]].iloc[0]["yhat"]
 
-def get_weekly_forecast():
+# def get_weekly_forecast():
+#     result = {}
+#     for day in DAYS:
+#         result[day] = {}
+#         for meal in ["breakfast", "lunch", "dinner"]:
+#             df = build_df_for(day, meal)
+#             if not df.empty:
+#                 forecast_value = int(round(train_prophet(df)))
+#             else:
+#                 forecast_value = 0
+#             result[day][meal] = forecast_value
+
+#     print("📅 Forecast result:", result)
+#     return result
+
+
+def get_weekly_forecast(week_offset=0):
     result = {}
     for day in DAYS:
         result[day] = {}
         for meal in ["breakfast", "lunch", "dinner"]:
             df = build_df_for(day, meal)
             if not df.empty:
-                forecast_value = int(round(train_prophet(df)))
+                forecast_value = int(round(train_prophet(df, weeks_ahead=week_offset + 1)))
             else:
                 forecast_value = 0
             result[day][meal] = forecast_value
-
     print("📅 Forecast result:", result)
     return result
+
+def train_prophet(df, weeks_ahead=1):
+    model = Prophet(weekly_seasonality=True, daily_seasonality=False)
+    model.fit(df)
+    future = model.make_future_dataframe(periods=weeks_ahead, freq='W')
+    forecast = model.predict(future)
+    value = forecast.tail(weeks_ahead).iloc[-1]["yhat"]
+    return max(int(round(value)), 5)  # prevent 0 or negative
+
 
 if __name__ == "__main__":
     from pprint import pprint

@@ -16,8 +16,24 @@ def get_menu():
 def get_ingredients():
     return list(db.ingredients.find({}))
 
+# def get_forecast_data():
+#     # return fetch_weekly_forecast()  # no args
+
 def get_forecast_data():
-    return fetch_weekly_forecast()  # no args
+    monthly_forecast = {}
+    DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+
+    # Sum 4 weeks' forecasts
+    for week in range(4):
+        weekly = fetch_weekly_forecast(week_offset=week)  # <-- we will add support for this
+        for day in DAYS:
+            if day not in monthly_forecast:
+                monthly_forecast[day] = {"breakfast": 0, "lunch": 0, "dinner": 0}
+            for meal in ["breakfast", "lunch", "dinner"]:
+                monthly_forecast[day][meal] += weekly[day][meal]
+    
+    return monthly_forecast
+
 
 def forecast_ingredient_requirements():
     menu = get_menu()
