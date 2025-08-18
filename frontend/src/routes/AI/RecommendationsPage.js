@@ -20,21 +20,44 @@ export default function RecommendationsPage() {
   };
 
   return (
-    <Card title="Meal Recommendations">
-      <Space style={{ marginBottom: 12 }}>
-        <Input placeholder="user email (optional)" value={email} onChange={e=>setEmail(e.target.value)} />
-        <Button onClick={fetchRec}>Get recommendations</Button>
-      </Space>
+    <div className={classes.pageContainer}>
+      <h1 className={classes.simpleTitleHeader}>Meal Recommendations</h1>
 
-      {loading && <Spin />}
-      {!loading && data && (
-        <>
-          <h4>Popular</h4>
-          <List dataSource={data.popular} renderItem={item => <List.Item>{item.dish} — {item.count}</List.Item>} />
-          <h4>User</h4>
-          <List dataSource={data.user} renderItem={item => <List.Item>{item.dish} — {item.count}</List.Item>} />
-        </>
-      )}
-    </Card>
+      <Row gutter={24} style={{ marginTop: 20 }}>
+        {/* Popular Trends */}
+        <Col span={12}>
+          <Card bordered className={classes.menuCard}>
+            <div className={classes.cardTitle}>
+              <span className={classes.weekTitle}>🔥 Popular Trends</span>
+            </div>
+            <List
+              dataSource={(data.popular || []).slice(0, 3)}
+              renderItem={item => (
+                <List.Item>
+                  {item.dish} — <b>{item.count}</b>
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
+
+        {/* User Specific */}
+        <Col span={12}>
+          <Card bordered className={classes.menuCard}>
+            <div className={classes.cardTitle}>
+              <span className={classes.weekTitle}>👤 Your Favorites</span>
+            </div>
+            <List
+              dataSource={(data.user || []).slice(0, 3)}
+              renderItem={item => (
+                <List.Item>
+                  {item.dish} — <b>{item.count}</b>
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
+      </Row>
+    </div>
   );
 }
