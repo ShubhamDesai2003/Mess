@@ -18,15 +18,13 @@ import BuyPage from './routes/Buy';
 import AdminPanel from './routes/AdminPanel';
 import TotalMealsPage from './routes/TotalMeals';
 import ScanQRPage from './routes/ScanQR';
-import IngredientForecastPage from './routes/AI/IngredientForecastPage';
+import ForecastDashboard from './routes/AI/ForecastDashboard';
 
 
 
 // To check if user is logged in
 import api from '.';
 import UPIPayment from './components/UPI';
-import WeeklyForecastPage from './routes/AI/WeeklyForecastPage';
-import RecommendationsPage from './routes/AI/RecommendationsPage';
 
 export default function App() {
     // Removes the loader after the site has been fully loaded
@@ -133,9 +131,7 @@ export default function App() {
 
                         <Route path="/forecast/" element={
                             <ProtectedRoute>
-                                <IngredientForecastPage />
-                                <WeeklyForecastPage />
-                                <RecommendationsPage />
+                                <ForecastDashboard />
                             </ProtectedRoute>
                         } />
 

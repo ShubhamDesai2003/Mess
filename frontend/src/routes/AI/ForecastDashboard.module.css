@@ -1,0 +1,251 @@
+/* Dashboard Container - Works with Side Menu */
+.dashboardContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff5eb 0%, #ffe8d6 100%);
+  padding: 2rem;
+  margin-left: 70px; /* Space for collapsed sidebar */
+  transition: margin-left 0.3s ease;
+}
+
+/* Header Section */
+.header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 60px rgba(241, 114, 40, 0.1);
+  border: 1px solid rgba(241, 114, 40, 0.1);
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.headerIcon {
+  font-size: 3rem;
+  color: #f17228;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.mainTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f17228 0%, #e06420 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0.5rem 0 0 0;
+}
+
+/* Stats Overview */
+.statsOverview {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #fff5eb 0%, #ffe8d6 100%);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(241, 114, 40, 0.1);
+  border: 1px solid rgba(241, 114, 40, 0.1);
+}
+
+.statIcon {
+  font-size: 2rem;
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Tab Container */
+.tabContainer {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 60px rgba(241, 114, 40, 0.1);
+  border: 1px solid rgba(241, 114, 40, 0.1);
+}
+
+.tabWrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Tab Styles */
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.tab:hover {
+  border-color: var(--tab-color);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(241, 114, 40, 0.15);
+}
+
+.activeTab {
+  background: linear-gradient(135deg, rgba(241, 114, 40, 0.1) 0%, rgba(224, 100, 32, 0.1) 100%);
+  border-color: var(--tab-color);
+  box-shadow: 0 8px 24px rgba(241, 114, 40, 0.2);
+}
+
+.tabIcon {
+  font-size: 2rem;
+  color: var(--tab-color);
+  flex-shrink: 0;
+}
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.tabLabel {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.tabDescription {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.activeIndicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 4px 4px 0 0;
+}
+
+/* Content Wrapper */
+.contentWrapper {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(241, 114, 40, 0.1);
+  border: 1px solid rgba(241, 114, 40, 0.1);
+  min-height: 500px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .dashboardContainer {
+    margin-left: 0;
+  }
+
+  .headerContent {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .statsOverview {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tabWrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboardContainer {
+    padding: 1rem;
+    margin-left: 0;
+  }
+
+  .header {
+    padding: 1.5rem;
+  }
+
+  .mainTitle {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+  }
+
+  .statsOverview {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .statCard {
+    width: 100%;
+  }
+
+  .tabContainer {
+    padding: 1rem;
+  }
+
+  .tab {
+    padding: 1rem;
+  }
+
+  .tabIcon {
+    font-size: 1.5rem;
+  }
+
+  .tabLabel {
+    font-size: 1rem;
+  }
+
+  .contentWrapper {
+    padding: 1rem;
+  }
+}
