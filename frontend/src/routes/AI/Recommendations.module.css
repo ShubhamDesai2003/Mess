@@ -1,7 +1,18 @@
 /* Recommendations Container */
 .recommendContainer {
-  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff5eb 0%, #ffe8d6 100%);
+  padding: 2rem;
+  margin-left: 70px; /* Space for collapsed sidebar */
+  transition: margin-left 0.3s ease;
 }
+
+@media (max-width: 1024px) {
+  .recommendContainer {
+    padding: 16px;
+  }
+}
+
 
 /* Hero Section - User Friendly */
 .heroSection {

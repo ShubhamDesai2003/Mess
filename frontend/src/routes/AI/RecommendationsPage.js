@@ -1,10 +1,13 @@
-// src/routes/RecommendationsPage.js
+
 import React, { useEffect, useState } from 'react';
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, 
-  Tooltip as RechartsTooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid 
+  Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid 
 } from "recharts";
-import { FiStar, FiTrendingUp, FiUser, FiRefreshCw, FiHeart, FiAward, FiThumbsUp } from "react-icons/fi";
+import { 
+  FiStar, FiTrendingUp, FiUser, FiRefreshCw, 
+  FiHeart, FiAward, FiThumbsUp 
+} from "react-icons/fi";
 import { motion } from "framer-motion";
 import api from '../..';
 import classes from "./Recommendations.module.css";
@@ -17,27 +20,50 @@ export default function RecommendationsPage() {
 
   const COLORS = ['#f17228', '#e06420', '#d55a1f', '#c64f1e', '#ff8c42', '#ffb380', '#ffd6ba', '#ffe5d3'];
 
+  const CACHE_KEY = "ai_recommendations_cache_v2";
+  const CACHE_EXPIRY_MINUTES = 15;
+
+  // Check admin only once
   useEffect(() => {
-    // Check if user is admin
     const checkAdmin = async () => {
       try {
-        const response = await api.get('api/data/status');
-        setIsAdmin(response.data?.admin || false);
-      } catch (error) {
-        console.error("Error checking admin status:", error);
+        const res = await api.get('api/data/status');
+        setIsAdmin(res.data?.admin || false);
+      } catch (err) {
+        console.error("Error checking admin status:", err);
       }
     };
     checkAdmin();
   }, []);
 
-  const fetchRec = async () => {
+  // Fetch or use cached recommendations
+  const fetchRecommendations = async (forceRefresh = false) => {
     setLoading(true);
     setError(null);
+
     try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached && !forceRefresh) {
+        const parsed = JSON.parse(cached);
+        const ageMinutes = (Date.now() - parsed.timestamp) / 1000 / 60;
+        if (ageMinutes < CACHE_EXPIRY_MINUTES) {
+          console.log("✅ Loaded recommendations from cache");
+          setData(parsed.data);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Fetch from backend
       const res = await api.get('/api/ai/forecast/recommendations');
       setData(res.data);
-    } catch (e) {
-      console.error("❌ Failed to fetch recommendations", e);
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({ data: res.data, timestamp: Date.now() })
+      );
+      console.log("✅ Fresh recommendations fetched and cached");
+    } catch (err) {
+      console.error("❌ Failed to fetch recommendations:", err);
       setError("Failed to load recommendations");
     } finally {
       setLoading(false);
@@ -45,9 +71,15 @@ export default function RecommendationsPage() {
   };
 
   useEffect(() => {
-    fetchRec();
+    fetchRecommendations();
   }, []);
 
+  const handleRefresh = () => {
+    localStorage.removeItem(CACHE_KEY);
+    fetchRecommendations(true);
+  };
+
+  // === Conditional UI states ===
   if (loading) {
     return (
       <div className={classes.loadingContainer}>
@@ -63,13 +95,14 @@ export default function RecommendationsPage() {
         <div className={classes.errorIcon}>⚠️</div>
         <h3>Oops! Something went wrong</h3>
         <p>{error || "No recommendations available"}</p>
-        <button onClick={fetchRec} className={classes.retryButton}>
+        <button onClick={handleRefresh} className={classes.retryButton}>
           <FiRefreshCw /> Try Again
         </button>
       </div>
     );
   }
 
+  // Prepare data for charts
   const popularData = (data.popular || []).slice(0, 8).map((item, index) => ({
     ...item,
     color: COLORS[index % COLORS.length]
@@ -79,7 +112,7 @@ export default function RecommendationsPage() {
 
   return (
     <div className={classes.recommendContainer}>
-      {/* Hero Section - User Friendly */}
+      {/* === HERO SECTION === */}
       <motion.div 
         className={classes.heroSection}
         initial={{ opacity: 0, y: 20 }}
@@ -95,7 +128,7 @@ export default function RecommendationsPage() {
         </div>
         {isAdmin && (
           <button 
-            onClick={fetchRec} 
+            onClick={handleRefresh}
             className={classes.refreshButton}
             disabled={loading}
           >
@@ -105,7 +138,7 @@ export default function RecommendationsPage() {
         )}
       </motion.div>
 
-      {/* Top Trending Meals - Large Cards */}
+      {/* === TOP TRENDING MEALS === */}
       <motion.div 
         className={classes.trendingSection}
         initial={{ opacity: 0, y: 20 }}
@@ -139,18 +172,13 @@ export default function RecommendationsPage() {
                   <FiThumbsUp />
                   <span>{item.count.toLocaleString()} people loved this!</span>
                 </div>
-                {index === 0 && (
-                  <div className={classes.badge}>
-                    <FiAward /> Most Popular
-                  </div>
-                )}
               </div>
             </motion.div>
           ))}
         </div>
       </motion.div>
 
-      {/* All Popular Meals - Grid View */}
+      {/* === ALL POPULAR MEALS === */}
       <motion.div 
         className={classes.allMealsSection}
         initial={{ opacity: 0, y: 20 }}
@@ -179,8 +207,7 @@ export default function RecommendationsPage() {
                 <h5 className={classes.mealName}>{item.dish}</h5>
                 <div className={classes.mealMeta}>
                   <span className={classes.orderCount}>
-                    <FiHeart style={{color: item.color}} />
-                    {item.count} orders
+                    <FiHeart style={{color: item.color}} /> {item.count} orders
                   </span>
                 </div>
               </div>
@@ -189,7 +216,7 @@ export default function RecommendationsPage() {
         </div>
       </motion.div>
 
-      {/* User Favorites Section - If available */}
+      {/* === USER FAVORITES === */}
       {userFavData.length > 0 && (
         <motion.div 
           className={classes.favoritesSection}
@@ -223,113 +250,7 @@ export default function RecommendationsPage() {
           </div>
         </motion.div>
       )}
-
-      {/* Admin Analytics View */}
-      {isAdmin && (
-        <motion.div 
-          className={classes.analyticsSection}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <div className={classes.sectionHeader}>
-            <h3>📊 Analytics Dashboard</h3>
-            <p>Detailed insights for management</p>
-          </div>
-
-          <div className={classes.chartsGrid}>
-            {/* Pie Chart */}
-            <div className={classes.chartCard}>
-              <h4>Distribution of Orders</h4>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={popularData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ dish, percent }) => `${dish}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="count"
-                  >
-                    {popularData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <RechartsTooltip 
-                    contentStyle={{
-                      background: 'rgba(255, 255, 255, 0.95)',
-                      border: 'none',
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Bar Chart */}
-            {userFavData.length > 0 && (
-              <div className={classes.chartCard}>
-                <h4>User Preferences</h4>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={userFavData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="dish" stroke="#64748b" />
-                    <YAxis stroke="#64748b" />
-                    <RechartsTooltip 
-                      contentStyle={{
-                        background: 'rgba(255, 255, 255, 0.95)',
-                        border: 'none',
-                        borderRadius: '12px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                      }}
-                    />
-                    <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                      {userFavData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </div>
-
-          {/* Key Insights */}
-          <div className={classes.insightsCard}>
-            <h4>💡 Key Insights</h4>
-            <div className={classes.insightsGrid}>
-              <div className={classes.insightItem}>
-                <div className={classes.insightIcon}>🏆</div>
-                <div className={classes.insightContent}>
-                  <div className={classes.insightLabel}>Most Popular</div>
-                  <div className={classes.insightValue}>{popularData[0]?.dish || 'N/A'}</div>
-                </div>
-              </div>
-              <div className={classes.insightItem}>
-                <div className={classes.insightIcon}>📈</div>
-                <div className={classes.insightContent}>
-                  <div className={classes.insightLabel}>Total Orders</div>
-                  <div className={classes.insightValue}>
-                    {popularData.reduce((sum, item) => sum + item.count, 0).toLocaleString()}
-                  </div>
-                </div>
-              </div>
-              {userFavData.length > 0 && (
-                <div className={classes.insightItem}>
-                  <div className={classes.insightIcon}>⚡</div>
-                  <div className={classes.insightContent}>
-                    <div className={classes.insightLabel}>Your Top Choice</div>
-                    <div className={classes.insightValue}>{userFavData[0]?.dish || 'N/A'}</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 }
+
