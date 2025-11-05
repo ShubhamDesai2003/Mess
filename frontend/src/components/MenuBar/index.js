@@ -18,7 +18,9 @@ import {
     InfoCircleOutlined,
     AppstoreOutlined,
     ContactsOutlined,
-    DownOutlined
+    DownOutlined,
+    RobotOutlined,
+    LineChartOutlined
 } from '@ant-design/icons';
 import { Menu, message } from 'antd';
 import api from "../..";
@@ -164,6 +166,7 @@ export default function MenuBar() {
         { icon: <TableOutlined />, label: 'Schedule', link: '/schedule', key: 'v-schedule' },
         { icon: <ShoppingCartOutlined />, label: 'Buy Coupons', link: '/buy-coupons', key: 'v-coupons' },
         { icon: <CalendarOutlined />, label: 'Purchase History', link: '/purchase-history', key: 'v-history' },
+        { icon: <RobotOutlined />, label: 'AI', link: '/ai', key: 'v-qrcode' },
         { icon: <QrcodeOutlined />, label: 'QR Code', link: '/qr-code', key: 'v-qrcode' },
     ];
     
@@ -171,7 +174,7 @@ export default function MenuBar() {
     const adminMenuItems = status?.admin ? [
         { icon: <SettingOutlined />, label: 'Admin Panel', link: '/admin', key: 'v-admin' },
         { icon: <SolutionOutlined />, label: 'Total Meals', link: '/total-meals', key: 'v-meals' },
-        { icon: <SolutionOutlined />, label: 'Forecasting', link: 'forecast/', key: 'v-ai' },
+        { icon: <LineChartOutlined />, label: 'Forecasting', link: 'forecast/', key: 'v-ai' },
         { icon: <ScanOutlined />, label: 'Scan QR', link: '/scan-qr', key: 'v-scan' },
     ] : [];
     
@@ -182,6 +185,7 @@ export default function MenuBar() {
             getItem('Schedule', '/schedule', <TableOutlined />, '3', navigate, setOpen),
             getItem('Buy coupons', '/buy-coupons', <ShoppingCartOutlined />, '4', navigate, setOpen),
             getItem('Purchase history', '/purchase-history', <CalendarOutlined />, '5', navigate, setOpen),
+            getItem('AI', '/ai', <QrcodeOutlined />, '6', navigate, setOpen),
             getItem('QR code', '/qr-code', <QrcodeOutlined />, '6', navigate, setOpen),
             ...(status?.admin ? [
                 { type: 'divider' },

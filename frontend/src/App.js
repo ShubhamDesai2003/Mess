@@ -25,6 +25,7 @@ import ForecastDashboard from './routes/AI/ForecastDashboard';
 // To check if user is logged in
 import api from '.';
 import UPIPayment from './components/UPI';
+import RecommendationsPage from './routes/AI/RecommendationsPage';
 
 export default function App() {
     // Removes the loader after the site has been fully loaded
@@ -103,6 +104,11 @@ export default function App() {
                         <Route path="/buy-coupons" element={
                             <ProtectedRoute>
                                 <BuyPage />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/ai" element={
+                            <ProtectedRoute>
+                                <RecommendationsPage />;
                             </ProtectedRoute>
                         } />
                         <Route path="/upi-payment" element={

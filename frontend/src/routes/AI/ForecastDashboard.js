@@ -36,14 +36,14 @@ export default function ForecastDashboard() {
   }, []);
 
   const tabs = [
-    { 
-      id: "recommendations", 
-      label: "Meal Recommendations", 
-      icon: <FiStar />,
-      color: "#f17228",
-      description: "Discover trending and personalized meals",
-      userFacing: true // Available to all users
-    },
+    // { 
+    //   id: "recommendations", 
+    //   label: "Meal Recommendations", 
+    //   icon: <FiStar />,
+    //   color: "#f17228",
+    //   description: "Discover trending and personalized meals",
+    //   userFacing: true // Available to all users
+    // },
     { 
       id: "weekly", 
       label: "Demand Forecast", 
@@ -71,10 +71,10 @@ export default function ForecastDashboard() {
         return <WeeklyForecastPage />;
       case "ingredients":
         return <IngredientForecastPage />;
-      case "recommendations":
-        return <RecommendationsPage />;
+      // case "recommendations":
+      //   return <RecommendationsPage />;
       default:
-        return <RecommendationsPage />;
+        return <WeeklyForecastPage />;
     }
   };
 

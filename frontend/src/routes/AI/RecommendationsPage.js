@@ -34,7 +34,7 @@ export default function RecommendationsPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get('/api/admin/forecast/recommendations');
+      const res = await api.get('/api/ai/forecast/recommendations');
       setData(res.data);
     } catch (e) {
       console.error("❌ Failed to fetch recommendations", e);
